@@ -1,0 +1,14 @@
+server:
+  port: 9002
+  shutdown: graceful
+  netty:
+    #Как долго ждать установления TCP-соединения с сервером
+    connection-timeout: 2s
+    #Как долго ждать перед закрытием TCP-соединения, если данные не передаются
+    idle-timeout: 15s
+
+spring:
+  application:
+    name: order-service
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
