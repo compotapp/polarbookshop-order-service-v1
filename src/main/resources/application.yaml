@@ -2,14 +2,33 @@ server:
   port: 9002
   shutdown: graceful
   netty:
-    #??? ????? ????? ???????????? TCP-?????????? ? ????????
+    #Как долго ждать установления TCP-соединения с сервером
     connection-timeout: 2s
-    #??? ????? ????? ????? ????????? TCP-??????????, ???? ?????? ?? ??????????
+    #Как долго ждать перед закрытием TCP-соединения, если данные не передаются
     idle-timeout: 15s
 
 spring:
   application:
     name: order-service
+  cloud:
+    function:
+      #Определение функции, управляемой Spring Cloud Function. В классе OrderFunctions
+      definition: dispatchOrder
+    stream:
+      bindings:
+        dispatchOrder-in-0:
+          destination: order-dispatched
+          group: ${spring.application.name}
+        #Выходная привязка создается и управляется StreamBridge.
+        acceptOrder-out-0:
+          #Фактическое имя у брокера, к которому привязывается связующее (обмен в RabbitMQ).
+          destination: order-accepted
+      rabbit:
+        bindings:
+          acceptOrder-out-0:
+            producer:
+              #Делает привязку AcceptOrder-out-0 транзакционной.
+              transacted: true
   lifecycle:
     timeout-per-shutdown-phase: 15s
   r2dbc:
@@ -24,6 +43,12 @@ spring:
     user: ${spring.r2dbc.username}
     password: ${spring.r2dbc.password}
     url: jdbc:postgresql://localhost:5432/polardb_order
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: user
+    password: password
+    connection-timeout: 5s
 
 polar:
   catalog-service-uri: "http://localhost:9001"
