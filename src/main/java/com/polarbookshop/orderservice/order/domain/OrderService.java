@@ -28,8 +28,8 @@ public class OrderService {
         this.streamBridge = streamBridge;
     }
 
-    public Flux<Order> getAllOrders() {
-        return orderRepository.findAll();
+    public Flux<Order> getAllOrders(String userId) {
+        return orderRepository.findAllByCreatedBy(userId);
     }
 
     /**
@@ -81,6 +81,8 @@ public class OrderService {
                 existingOrder.bookPrice(),
                 existingOrder.quantity(),
                 OrderStatus.DISPATCHED,
+                existingOrder.createdBy(),
+                existingOrder.lastModifiedBy(),
                 existingOrder.createdDate(),
                 existingOrder.lastModifiedDate(),
                 existingOrder.version()
